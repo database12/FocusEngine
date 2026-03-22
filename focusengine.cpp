@@ -165,7 +165,7 @@ void FocusEngine::onTick()
     emit speedChanged(m_speed);
 
     if (m_focusTimeSeconds >= m_sessionGoalSeconds) {
-        pause();
+        reset();
         emit sessionCompleted();
     }
 }
@@ -258,36 +258,19 @@ void FocusEngine::start()
     m_trafficTarget    = 0.0;
     m_smoothedNoise    = 0.0;
     m_rpm = CRUISE_RPM[0];
-    m_startTime = QDateTime::currentDateTime();
-    m_maxSpeed = 0; m_maxRpm = 0; m_peakGear = 1;
-    m_speedAccum = 0; m_totalSpeedSamples = 0;
+    // Only reset metrics on fresh start, not on resume from Pause
+    if (m_focusTimeSeconds == 0) {
+        m_startTime = QDateTime::currentDateTime();
+        m_maxSpeed = 0; m_maxRpm = 0; m_peakGear = 1;
+        m_speedAccum = 0; m_totalSpeedSamples = 0;
+        m_totalDistractionSeconds = 0; m_totalDistractions = 0;
+    }
     m_tickTimer->start();
     m_audio->start();
     emit rpmChanged(m_rpm);
     emit stateChanged(m_state);
 }
 
-void FocusEngine::pause()
-{
-    if (m_state != State::Running) return;
-    m_state = State::Paused;
-    m_tickTimer->stop();
-    m_audio->stop();
-
-    // Reset speed & RPM to 0 — vehicle has stopped. Time & gear preserved.
-    m_speed     = 0.0;
-    m_prevSpeed = 0.0;
-    m_rpm       = 0.0;
-    m_isDistracted    = false;
-    m_trafficOffset   = 0.0;
-    m_trafficTarget   = 0.0;
-    m_trafficCountdown= 0;
-    m_smoothedNoise   = 0.0;
-
-    emit speedChanged(m_speed);
-    emit rpmChanged(m_rpm);
-    emit stateChanged(m_state);
-}
 
 void FocusEngine::reset()
 {

@@ -56,7 +56,6 @@ private:
     RpmBarWidget     *m_rpmBar{nullptr};
 
     QPushButton *m_startCancelBtn{nullptr};
-    QPushButton *m_pauseBtn{nullptr};
     QPushButton *m_resetBtn{nullptr};
     QPushButton *m_muteBtn{nullptr};
     QPushButton *m_appsBtn{nullptr};

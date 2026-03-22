@@ -42,7 +42,7 @@ class FocusEngine : public QObject
     Q_OBJECT
 
 public:
-    enum class State { Idle, Running, Paused };
+    enum class State { Idle, Running };
 
     explicit FocusEngine(QObject *parent = nullptr);
     ~FocusEngine() override;
@@ -73,7 +73,6 @@ public:
 
 public slots:
     void start();
-    void pause();
     void reset();
 
 signals:

@@ -103,25 +103,21 @@ void DashboardWidget::setupUI()
     auto *ctrlRow = new QHBoxLayout; ctrlRow->setSpacing(12);
 
     m_startCancelBtn = new QPushButton("START");
-    m_pauseBtn       = new QPushButton("PAUSE");
     m_resetBtn       = new QPushButton("RESET");
     m_muteBtn        = new QPushButton("");
 
     styleButton(m_startCancelBtn, QColor(0, 185, 90));
-    styleButton(m_pauseBtn,       QColor(220, 140, 0));
     styleButton(m_resetBtn,       QColor(190, 45, 45));
     styleButton(m_muteBtn,        QColor(80, 130, 180));
 
     // Segoe MDL2 icons: E768=Play E769=Pause E72C=Refresh E74F=Mute E767=Sound
     setButtonIcon(m_startCancelBtn, QString(QChar(0xE768)), QColor(0, 185, 90));
-    setButtonIcon(m_pauseBtn,       QString(QChar(0xE769)), QColor(220, 140, 0));
     setButtonIcon(m_resetBtn,       QString(QChar(0xE72C)), QColor(190, 45, 45));
     setButtonIcon(m_muteBtn,        QString(QChar(0xE767)), QColor(80, 130, 180));
     m_muteBtn->setMinimumSize(44, 40);
     m_muteBtn->setMaximumWidth(50);
     m_muteBtn->setToolTip("Toggle engine sound");
 
-    m_pauseBtn->setEnabled(false);
 
     // ── Strict mode toggle + allowed apps button ─────────────────
     m_appsBtn = new QPushButton("ALLOWED APPS");
@@ -136,7 +132,6 @@ void DashboardWidget::setupUI()
 
     ctrlRow->addStretch();
     ctrlRow->addWidget(m_startCancelBtn);
-    ctrlRow->addWidget(m_pauseBtn);
     ctrlRow->addWidget(m_resetBtn);
     ctrlRow->addWidget(m_muteBtn);
     ctrlRow->addSpacing(12);
@@ -242,13 +237,10 @@ void DashboardWidget::setupConnections()
                 // <5 min: "CANCEL" — discard
                 m_engine->reset();
             }
-        } else if (m_engine->state() == FocusEngine::State::Paused) {
-            m_engine->start();   // RESUME
         } else {
             m_engine->start();   // START
         }
     });
-    connect(m_pauseBtn,  &QPushButton::clicked, m_engine, &FocusEngine::pause);
     connect(m_resetBtn,  &QPushButton::clicked, m_engine, &FocusEngine::reset);
 
     // Mute toggle
@@ -292,16 +284,11 @@ void DashboardWidget::refreshStartButton()
             styleButton(m_startCancelBtn, QColor(200, 60, 60));
             setButtonIcon(m_startCancelBtn, QString(QChar(0xE711)), QColor(200, 60, 60));  // X/Close
         }
-    } else if (state == FocusEngine::State::Paused) {
-        m_startCancelBtn->setText("RESUME");
-        styleButton(m_startCancelBtn, QColor(0, 185, 90));
-        setButtonIcon(m_startCancelBtn, QString(QChar(0xE768)), QColor(0, 185, 90));  // Play
     } else {
         m_startCancelBtn->setText("START");
         styleButton(m_startCancelBtn, QColor(0, 185, 90));
         setButtonIcon(m_startCancelBtn, QString(QChar(0xE768)), QColor(0, 185, 90));  // Play
     }
-    m_pauseBtn->setEnabled(running);
 }
 
 void DashboardWidget::onStateChanged()
@@ -310,9 +297,6 @@ void DashboardWidget::onStateChanged()
     case FocusEngine::State::Running:
         m_statusLabel->setText("DRIVING  —  STAY FOCUSED");
         m_statusLabel->setStyleSheet("color: rgba(0,210,255,210); background: transparent;"); break;
-    case FocusEngine::State::Paused:
-        m_statusLabel->setText("PAUSED");
-        m_statusLabel->setStyleSheet("color: rgba(230,150,0,210); background: transparent;"); break;
     case FocusEngine::State::Idle:
         m_statusLabel->setText("READY");
         m_statusLabel->setStyleSheet("color: rgba(80,140,185,200); background: transparent;"); break;
